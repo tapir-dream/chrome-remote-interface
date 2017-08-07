@@ -1,27 +1,26 @@
-const events = require('events');
+'use strict';
 
-const devtools = require('./lib/devtools.js');
-const Chrome = require('./lib/chrome.js');
+const EventEmitter = require('events');
+
+const devtools = require('./lib/devtools');
+const Chrome = require('./lib/chrome');
 
 module.exports = function (options, callback) {
     if (typeof options === 'function') {
         callback = options;
         options = undefined;
     }
-    const notifier = new events.EventEmitter();
+    const notifier = new EventEmitter();
     if (typeof callback === 'function') {
         // allow to register the error callback later
         process.nextTick(function () {
             new Chrome(options, notifier);
         });
-        return notifier.on('connect', callback);
+        return notifier.once('connect', callback);
     } else {
         return new Promise(function (fulfill, reject) {
-            notifier.on('connect', fulfill);
-            notifier.on('error', reject);
-            notifier.on('disconnect', function () {
-                reject(new Error('Disconnected'));
-            });
+            notifier.once('connect', fulfill);
+            notifier.once('error', reject);
             new Chrome(options, notifier);
         });
     }

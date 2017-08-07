@@ -5,18 +5,18 @@ header() {
 }
 
 run-suite() {
-    node_modules/.bin/mocha -b -t 10000
+    PATH="node_modules/.bin:$PATH" mocha -b -t 10000
 }
 
 set -e
+
+header 'Linter'
+scripts/run-linter.sh
 
 if ! curl -s 'http://localhost:9222' >/dev/null; then
     echo 'Start Chrome with "--remote-debugging-port=9222"'
     false
 fi
-
-header 'Linter'
-scripts/run-linter.sh
 
 header 'Node.js: (default)'
 run-suite

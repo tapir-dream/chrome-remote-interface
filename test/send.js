@@ -1,3 +1,5 @@
+'use strict';
+
 const assert = require('assert');
 
 const Chrome = require('../');
@@ -65,6 +67,18 @@ describe('sending a command', function () {
             });
         });
     });
+    it('should catch WebSocket errors', function (done) {
+        Chrome(function (chrome) {
+            // simulate unhandled disconnection
+            chrome.close(function () {
+                chrome.Page.enable(function (error, response) {
+                    assert(error instanceof Error);
+                    assert(!response);
+                    done();
+                });
+            });
+        });
+    });
     describe('without a callback', function () {
         it('should fulfill the promise if the command succeeds', function (done) {
             Chrome(function (chrome) {
@@ -78,9 +92,26 @@ describe('sending a command', function () {
         it('should reject the promise if the command fails', function (done) {
             Chrome(function (chrome) {
                 chrome.send('Network.getResponseBody').then(function () {
-                    assert(false);
-                }).catch(function () {
+                    done(new Error());
+                }).catch(function (error) {
+                    assert(error instanceof Error);
+                    assert(!!error.response.code);
                     chrome.close(done);
+                });
+            });
+        });
+        it('should catch WebSocket errors', function (done) {
+            Chrome(function (chrome) {
+                // simulate unhandled disconnection
+                chrome.close(function () {
+                    chrome.Page.enable().then(function (response) {
+                        assert(!false);
+                    }).catch(function (err) {
+                        console.log(err.response);
+                        assert(err instanceof Error);
+                        assert(!err.response); // not protocol error
+                        done();
+                    });
                 });
             });
         });
@@ -98,8 +129,10 @@ describe('sending a command', function () {
         it('should reject the promise if the command fails', function (done) {
             Chrome(function (chrome) {
                 chrome.Network.getResponseBody().then(function () {
-                    assert(false);
-                }).catch(function () {
+                    done(new Error());
+                }).catch(function (error) {
+                    assert(error instanceof Error);
+                    assert(!!error.response.code);
                     chrome.close(done);
                 });
             });

@@ -2,13 +2,17 @@
     "env": {
         "es6": true,
         "node": true,
+        "browser": true,
         "mocha": true
     },
     "extends": "eslint:recommended",
     "rules": {
         "indent": [
             "error",
-            4
+            4,
+            {
+                "ArrayExpression": "first"
+            }
         ],
         "linebreak-style": [
             "error",
@@ -34,12 +38,20 @@
         "space-before-blocks": [
             "error"
         ],
+        "key-spacing": [
+            "error"
+        ],
         "no-unused-vars": [
             "error",
             {
                 "args": "none"
             }
         ],
+        "eqeqeq": [
+            "error",
+            "always"
+        ],
+        "no-var": "error",
         "no-console": 0
     }
 }
